@@ -11,12 +11,9 @@
 #include <QMouseEvent>
 #include <QDialog>
 #include <QVBoxLayout>
-#include <QLabel>
-
-#include <iostream>
 #include <memory>
 
-#include <QBuffer>
+#include "ocr/ocr.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent),
@@ -77,52 +74,9 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 void MainWindow::mouseReleaseEvent(QMouseEvent *event) {
     rubberBand->hide();
 
-    auto imageLabel = new QLabel(this);
-    auto pixmap = QWidget::grab(rubberBand->geometry());
-    imageLabel->setPixmap(pixmap);
-
-    char *outText;
-
-    auto *api = new tesseract::TessBaseAPI();
-    // Initialize tesseract-ocr with English, without specifying tessdata path
-    if (api->Init(NULL, "chi_sim")) {
-        fprintf(stderr, "Could not initialize tesseract.\n");
-        exit(1);
-    }
-
-    api->SetPageSegMode(tesseract::PageSegMode::PSM_AUTO);
-    api->SetVariable("save_best_choices", "T");
-
-    // Open input image with leptonica library
-    Pix *image = qImage2PIX(pixmap.toImage());
-
-    api->SetImage(image);
-    // Get OCR result
-    outText = api->GetUTF8Text();
-
-    auto *imageDialog = new QDialog;
-    imageDialog->setWindowTitle("识别结果及录入字段");
-    auto *layout = new QVBoxLayout;
-    auto label = new QLabel(QString::fromUtf8(outText));
-    label->adjustSize();
-    layout->addWidget(label);
-    imageDialog->setLayout(layout);
-    imageDialog->exec();
-
-    // Destroy used object and release memory
-    api->End();
-    delete api;
-    delete[] outText;
-    pixDestroy(&image);
+    Ocr ocr(this, QWidget::grab(rubberBand->geometry()));
+    ocr.exec();
 
     // determine selection, for example using QRect::intersects()
     // and QRect::contains().
-}
-
-PIX* MainWindow::qImage2PIX(const QImage &qImage) {
-    QByteArray ba;
-    QBuffer buf(&ba);
-    buf.open(QIODevice::WriteOnly);
-    qImage.save(&buf, "BMP");
-    return pixReadMemBmp(reinterpret_cast<const l_uint8 *>(ba.constData()), ba.size());
 }

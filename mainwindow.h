@@ -3,9 +3,6 @@
 //
 #include <QMainWindow>
 #include <QRubberBand>
-#include <allheaders.h> // leptonica main header for image io
-#include <tesseract/baseapi.h> // tesseract main header
-#include <opencv2/highgui.hpp>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,8 +28,6 @@ public:
 
     ~MainWindow();
 
-    PIX* qImage2PIX(const QImage &image);
-
 public slots:
 
     void open(const QUrl &docLocation);
@@ -52,8 +47,6 @@ private:
     Ui::MainWindow *ui;
 
     QFileDialog *m_fileDialog = nullptr;
-
-    QDialog *m_imageDialog = nullptr;
 
     QPdfDocument *m_document;
 

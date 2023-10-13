@@ -32,7 +32,10 @@ add_executable(OCR main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.qrc
+        ocr/ocr.h
+        ocr/ocr.cpp
 )
+
 target_link_libraries(OCR PUBLIC
         ${DEPENDENCIES}
         Qt6::Core
